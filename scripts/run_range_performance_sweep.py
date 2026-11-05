@@ -126,42 +126,115 @@ def main() -> None:
             )
             noise_rms_v = total_output_noise_rms_v(apd_density, tia)
             peak_snr = float(np.max(analog_v) / noise_rms_v)
-            error_values_m = []
+            conditional_error_values_m = []
+            all_error_values_m = []
             clipped_trials = 0
+
+            
 
             for _ in range(TRIALS_PER_CONDITION):
                 phase = float(rng.random())
+
                 sample_time, clean_samples = sample_waveform(
-                    dense_time, analog_v, adc, phase
+                    dense_time,
+                    analog_v,
+                    adc,
+                    phase,
                 )
+
                 noisy_samples = clean_samples + rng.normal(
-                    0.0, noise_rms_v, clean_samples.size
+                    0.0,
+                    noise_rms_v,
+                    clean_samples.size,
                 )
-                _, quantized_v, clipped_fraction = quantize_voltage(noisy_samples, adc)
+
+                _, quantized_v, clipped_fraction = quantize_voltage(
+                    noisy_samples,
+                    adc,
+                )
+
                 if clipped_fraction > 0.0:
                     clipped_trials += 1
-                scores = matched_filter_scores(quantized_v, template_v)
-                estimate_s = sampled_peak_time_s(sample_time, scores, interpolate=True)
-                corrected_estimate_s = estimate_s - calibration_offset_s
+
+                scores = matched_filter_scores(
+                    quantized_v,
+                    template_v,
+                )
+
+                estimate_s = sampled_peak_time_s(
+                    sample_time,
+                    scores,
+                    interpolate=True,
+                )
+
+                corrected_estimate_s = (
+                    estimate_s - calibration_offset_s
+                )
+
+                range_error_m = time_error_to_range_error_m(
+                    corrected_estimate_s - true_tof_s
+                )
+
+                # 无条件误差：所有试验均计入
+                all_error_values_m.append(range_error_m)
+
                 valid_detection = (
                     float(np.max(scores)) >= detection_threshold_v
                     and abs(corrected_estimate_s - true_tof_s)
                     <= MAXIMUM_VALID_TIME_ERROR_S
                 )
+
+                # 条件误差：只统计满足检出条件的试验
                 if valid_detection:
-                    error_values_m.append(
-                        time_error_to_range_error_m(corrected_estimate_s - true_tof_s)
+                    conditional_error_values_m.append(
+                        range_error_m
                     )
 
-            errors_m = np.asarray(error_values_m)
-            detection_rate = errors_m.size / TRIALS_PER_CONDITION
-            bias_m = float(np.mean(errors_m)) if errors_m.size else np.nan
-            rmse_m = float(np.sqrt(np.mean(errors_m**2))) if errors_m.size else np.nan
-            p95_m = (
-                float(np.percentile(np.abs(errors_m), 95))
-                if errors_m.size
+            conditional_errors_m = np.asarray(
+                conditional_error_values_m
+            )
+            all_errors_m = np.asarray(
+                all_error_values_m
+            )
+
+            detection_rate = (
+                conditional_errors_m.size
+                / TRIALS_PER_CONDITION
+            )
+
+            conditional_bias_m = (
+                float(np.mean(conditional_errors_m))
+                if conditional_errors_m.size
                 else np.nan
             )
+
+            conditional_rmse_m = (
+                float(
+                    np.sqrt(
+                        np.mean(conditional_errors_m**2)
+                    )
+                )
+                if conditional_errors_m.size
+                else np.nan
+            )
+
+            conditional_p95_m = (
+                float(
+                    np.percentile(
+                        np.abs(conditional_errors_m),
+                        95,
+                    )
+                )
+                if conditional_errors_m.size
+                else np.nan
+            )
+
+            unconditional_rmse_m = float(
+                np.sqrt(
+                    np.mean(all_errors_m**2)
+                )
+            )
+
             rows.append(
                 (
                     float(distance_m),
@@ -169,17 +242,24 @@ def main() -> None:
                     float(np.max(analog_v)),
                     peak_snr,
                     detection_rate,
-                    bias_m,
-                    rmse_m,
-                    p95_m,
+                    conditional_bias_m,
+                    conditional_rmse_m,
+                    conditional_p95_m,
                     clipped_trials / TRIALS_PER_CONDITION,
                     tia_clipped_sample_fraction,
+                    unconditional_rmse_m,
                 )
             )
 
     output_path = DATA_DIR / "range_reflectivity_performance.csv"
-    with output_path.open("w", newline="", encoding="utf-8") as file:
+
+    with output_path.open(
+        "w",
+        newline="",
+        encoding="utf-8",
+    ) as file:
         writer = csv.writer(file)
+
         writer.writerow(
             [
                 "range_m",
@@ -192,11 +272,14 @@ def main() -> None:
                 "conditional_p95_absolute_error_m",
                 "adc_clipped_trial_fraction",
                 "tia_clipped_sample_fraction",
+                "unconditional_rmse_m",
             ]
         )
+
         writer.writerows(rows)
 
     plt.rcParams.update(
+
         {
             "font.family": "sans-serif",
             "font.size": 9,
@@ -214,16 +297,19 @@ def main() -> None:
         ranges = np.array([row[0] for row in subset])
         axes[0, 0].plot(ranges, [20.0 * np.log10(row[3]) for row in subset], "o-", color=color, label=f"{reflectivity:.0%}")
         axes[0, 1].plot(ranges, [100.0 * row[4] for row in subset], "o-", color=color)
-        axes[1, 0].plot(ranges, [100.0 * row[6] for row in subset], "o-", color=color)
+        axes[1, 0].plot(ranges, [100.0 * row[6] for row in subset], "o-", color=color,label=f"{reflectivity:.0%} conditional")
+        axes[1, 0].plot(
+    ranges,[100.0 * row[10] for row in subset],"--",color=color,alpha=0.75,label=f"{reflectivity:.0%} all-trial",)
+
         axes[1, 1].plot(ranges, [100.0 * row[7] for row in subset], "o-", color=color)
     axes[0, 0].set(title="Analog peak SNR", ylabel="SNR (dB)")
     axes[0, 0].legend(title="Reflectivity")
     axes[0, 1].axhline(95.0, color="#333333", linestyle="--", linewidth=1, label="95% criterion")
     axes[0, 1].set(title="Valid detection rate", ylabel="Detection rate (%)", ylim=(0.0, 105.0))
     axes[0, 1].legend()
-    axes[1, 0].axhline(5.0, color="#333333", linestyle="--", linewidth=1, label="5 cm criterion")
-    axes[1, 0].set(title="Conditional ranging RMSE", xlabel="Target range (m)", ylabel="RMSE (cm)")
-    axes[1, 0].legend()
+    axes[1, 0].axhline(5.0, color="#333333", linestyle=":", linewidth=1.2, label="5 cm criterion")
+    axes[1, 0].set(title="Conditional and all-trial ranging RMSE", xlabel="Target range (m)", ylabel="RMSE (cm)")
+    axes[1, 0].legend(fontsize=7, ncol=2,)
     axes[1, 1].set(title="Conditional P95 absolute error", xlabel="Target range (m)", ylabel="P95 absolute error (cm)")
     figure.suptitle("Matched-filter performance versus range and reflectivity", fontsize=13)
     figure.tight_layout()

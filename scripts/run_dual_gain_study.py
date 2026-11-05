@@ -19,7 +19,20 @@ from lidar_sim.tia import TIA, clip_output_voltage, first_order_lowpass_transimp
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_ROOT / "results" / "data"
 FIGURE_DIR = PROJECT_ROOT / "results" / "figures"
-RANGES_M = np.arange(20.0, 251.0, 10.0)
+NEAR_RANGES_M = np.array(
+    [0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 15.0]
+)
+
+FAR_RANGES_M = np.arange(
+    20.0,
+    251.0,
+    10.0,
+)
+
+RANGES_M = np.concatenate(
+    [NEAR_RANGES_M, FAR_RANGES_M]
+)
+
 REFLECTIVITIES = (0.10, 0.80)
 HIGH_GAIN_KOHM = 20.0
 LOW_GAIN_KOHM = 2.0
@@ -237,23 +250,123 @@ def main() -> None:
     axes[1, 0].set(title="Selected channel usage", xlabel="Target range (m)", ylabel="Usage rate (%)")
     axes[1, 1].set(title="Fusion failure modes", xlabel="Target range (m)", ylabel="Trial rate (%)")
     for axis in axes.flat:
+        axis.set_xscale("log")
+        axis.set_xlim(0.18, 300.0)
+        axis.set_xticks(
+            [0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 250]
+        )
+        axis.set_xticklabels(
+            [
+                "0.2",
+                "0.5",
+                "1",
+                "2",
+                "5",
+                "10",
+                "20",
+                "50",
+                "100",
+                "250",
+            ]
+        )
         axis.legend(fontsize=8)
-    figure.suptitle("20 kOhm / 2 kOhm dual-gain receiver", fontsize=13)
+
+    figure.suptitle(
+        "20 kOhm / 2 kOhm dual-gain receiver",
+        fontsize=13,
+    )
     figure.tight_layout()
+
     for suffix in ("png", "pdf"):
-        figure.savefig(FIGURE_DIR / f"10_dual_gain_receiver.{suffix}")
+        figure.savefig(
+            FIGURE_DIR / f"10_dual_gain_receiver.{suffix}"
+        )
+
     plt.close(figure)
+
+    # 单独绘制 80% 反射率目标的近场增益交接
+    near_figure, near_axis = plt.subplots(
+        figsize=(7.2, 4.5)
+    )
+
+    near_rows = [
+        row
+        for row in rows
+        if row[1] == 0.80 and row[0] <= 100.0
+    ]
+
+    near_ranges = np.array(
+        [row[0] for row in near_rows]
+    )
+
+    near_axis.plot(
+        near_ranges,
+        [100.0 * row[5] for row in near_rows],
+        "o-",
+        color="#1368aa",
+        label="High-gain channel",
+    )
+
+    near_axis.plot(
+        near_ranges,
+        [100.0 * row[6] for row in near_rows],
+        "s-",
+        color="#238636",
+        label="Low-gain channel",
+    )
+
+    near_axis.plot(
+        near_ranges,
+        [100.0 * row[7] for row in near_rows],
+        "^-",
+        color="#c73e1d",
+        label="Both channels clipped",
+    )
+
+    near_axis.set_xscale("log")
+    near_axis.set_xlim(0.18, 110.0)
+
+    near_axis.set_xticks(
+        [0.2, 0.5, 1, 2, 5, 10, 20, 50, 100]
+    )
+
+    near_axis.set_xticklabels(
+        ["0.2", "0.5", "1", "2", "5", "10", "20", "50", "100"]
+    )
+
+    near_axis.set(
+        title="Near-range dual-gain handover (80% target)",
+        xlabel="Target range (m)",
+        ylabel="Trial rate (%)",
+        ylim=(-3.0, 103.0),
+    )
+
+    near_axis.legend()
+    near_figure.tight_layout()
+
+    for suffix in ("png", "pdf"):
+        near_figure.savefig(
+            FIGURE_DIR
+            / f"11_near_range_gain_handover.{suffix}"
+        )
+
+    plt.close(near_figure)
 
     print(f"Dual-gain study: high={HIGH_GAIN_KOHM:.0f} kOhm, low={LOW_GAIN_KOHM:.0f} kOhm, trials={TRIALS}, seed={RANDOM_SEED}")
     print("Reflectivity  Reliable interval (m)  High-to-low transition (m)  Both-clipped near limit")
     for reflectivity in REFLECTIVITIES:
         subset = [row for row in rows if row[1] == reflectivity]
         reliable = [row[0] for row in subset if row[2] >= 0.95 and row[3] <= 0.05]
-        interval = "none" if not reliable else f"{min(reliable):.0f}-{max(reliable):.0f}"
+        interval = (
+            "none"
+             if not reliable
+            else f"{min(reliable):g}-{max(reliable):g}"
+        )
+
         low_used = [row[0] for row in subset if row[6] > row[5]]
-        transition = "none" if not low_used else f"<= {max(low_used):.0f}"
+        transition = ("none" if not low_used else f"<= {max(low_used):g}" )
         clipped = [row[0] for row in subset if row[7] > 0.01]
-        clipped_limit = "none" if not clipped else f"<= {max(clipped):.0f} m"
+        clipped_limit = ( "none"  if not clipped else f"<= {max(clipped):g} m")
         print(f"{reflectivity:11.0%}  {interval:>21s}  {transition:>26s}  {clipped_limit:>23s}")
     maximum_false_selection = max(row[8] for row in rows)
     print(f"Maximum false-time selection rate: {maximum_false_selection:.3%}")

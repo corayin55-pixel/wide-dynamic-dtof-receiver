@@ -26,15 +26,15 @@ ADC和底层测距算法。项目重点不是复现具体商业产品，而是�
 
 可靠条件定义为：
 
-\[
+$$
 P_D \ge 95\%
-\]
+$$
 
 以及成功检出样本的条件测距误差：
 
-\[
+$$
 \mathrm{RMSE} \le 5\ \mathrm{cm}
-\]
+$$
 
 条件RMSE必须与检出率同时报告，防止算法通过拒绝困难样本得到虚假的低
 误差。250 m仅为当前扫描上限，不代表最大探测距离。
@@ -43,29 +43,29 @@ P_D \ge 95\%
 
 发射脉冲采用能量归一化高斯模型：
 
-\[
+$$
 P_t(t)=\frac{E_t}{\sigma\sqrt{2\pi}}
 \exp\left[-\frac{(t-t_0)^2}{2\sigma^2}\right]
-\]
+$$
 
 其中：
 
-\[
+$$
 \tau_{\mathrm{FWHM}}=2\sqrt{2\ln2}\sigma
-\]
+$$
 
 目标往返时延为：
 
-\[
+$$
 t_r=\frac{2R}{c}
-\]
+$$
 
 对于同轴远场、朗伯目标和接收视场完全覆盖光斑的简化条件，接收脉冲能量：
 
-\[
+$$
 E_r=E_t\eta_t f_{\mathrm{fill}}\rho\cos\theta
 \frac{A_r}{\pi R^2}e^{-2\alpha R}\eta_r
-\]
+$$
 
 关闭大气衰减后，距离扫描双对数拟合斜率为-2.000，验证了距离平方反比。
 
@@ -75,32 +75,32 @@ E_r=E_t\eta_t f_{\mathrm{fill}}\rho\cos\theta
 
 905 nm单光子能量：
 
-\[
+$$
 E_{ph}=\frac{hc}{\lambda}
-\]
+$$
 
 接收光子数和外量子效率：
 
-\[
+$$
 N_{ph}=\frac{E_r}{E_{ph}},\qquad
 \eta_q=\frac{\mathcal R_\lambda hc}{q\lambda}
-\]
+$$
 
 APD倍增电流和过剩噪声因子：
 
-\[
+$$
 I_s=M\mathcal R_\lambda P_r
-\]
+$$
 
-\[
+$$
 F(M)=kM+(1-k)\left(2-\frac1M\right)
-\]
+$$
 
 背景光采用接收展度近似：
 
-\[
+$$
 P_{bg}=L_\lambda A_r\Omega_{FOV}\Delta\lambda\eta_r
-\]
+$$
 
 当前光谱辐亮度为系统级假设，并非100 klx到905 nm背景功率的直接换算。
 基线输出为：接收能量1.972 fJ、约8986个光子、量子效率68.5%、约6155个
@@ -110,15 +110,15 @@ P_{bg}=L_\lambda A_r\Omega_{FOV}\Delta\lambda\eta_r
 
 TIA采用一阶低通模型：
 
-\[
+$$
 H(s)=\frac{R_f}{1+s/(2\pi f_c)}
-\]
+$$
 
 一阶低通等效噪声带宽：
 
-\[
+$$
 B_{ENBW}=\frac{\pi}{2}f_c
-\]
+$$
 
 比较结果：
 
@@ -137,9 +137,9 @@ B_{ENBW}=\frac{\pi}{2}f_c
 
 ADC原始距离采样间隔：
 
-\[
+$$
 \Delta R=\frac{c}{2f_s}
-\]
+$$
 
 采样率结果：
 
@@ -160,10 +160,10 @@ ADC原始距离采样间隔：
 
 比较固定阈值、整数峰值、三点抛物线插值和匹配滤波。抛物线亚采样偏移：
 
-\[
+$$
 \delta=\frac{1}{2}
 \frac{y[n-1]-y[n+1]}{y[n-1]-2y[n]+y[n+1]}
-\]
+$$
 
 在50 m、10%反射率、2000次蒙特卡洛基线实验中：
 

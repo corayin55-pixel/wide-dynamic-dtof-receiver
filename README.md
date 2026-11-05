@@ -1,7 +1,10 @@
-# 905 nm Pulsed dToF LiDAR System Simulator
-# Wide-Dynamic-Range dToF LiDAR Receiver Simulation and Dual-Gain Design
+# Simulation and Dual-Gain Design of dToF LiDAR Receivers for Wide-Dynamic-Range Ranging
+
+# Simulation and Dual-Gain Design of dToF LiDAR Receivers for Wide-Dynamic-Range Ranging
+
 
 **面向宽动态测距的 dToF 激光雷达接收机仿真与双增益设计**
+
 
 A system-level simulation of a 905 nm pulsed dToF LiDAR receiver,
 covering optical propagation, Si APD detection, TIA/ADC design,

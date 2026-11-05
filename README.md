@@ -1,8 +1,5 @@
 # Simulation and Dual-Gain Design of dToF LiDAR Receivers for Wide-Dynamic-Range Ranging
 
-# Simulation and Dual-Gain Design of dToF LiDAR Receivers for Wide-Dynamic-Range Ranging
-
-
 **面向宽动态测距的 dToF 激光雷达接收机仿真与双增益设计**
 
 

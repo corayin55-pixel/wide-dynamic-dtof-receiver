@@ -3,6 +3,7 @@ Name: lidar-system-simulator
 Version: 0.1.0
 Summary: System-level simulation of a 905 nm pulsed dToF LiDAR channel
 Requires-Python: >=3.12
+Requires-Dist: matplotlib>=3.8
 Requires-Dist: numpy>=1.26
 Requires-Dist: PyYAML>=6.0
 Provides-Extra: dev

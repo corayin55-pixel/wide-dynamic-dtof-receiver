@@ -4,5 +4,7 @@ __pycache__/
 *.py[cod]
 .pytest_cache/
 .DS_Store
-results/*
-!results/.gitkeep
+results/data/*
+results/figures/*
+!results/data/.gitkeep
+!results/figures/.gitkeep

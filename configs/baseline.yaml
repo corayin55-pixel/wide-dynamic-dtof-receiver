@@ -19,6 +19,18 @@ receiver:
   aperture_diameter_mm: 25.0
   optical_efficiency: 0.75
 
+background:
+  spectral_radiance_w_m2_sr_nm: 0.30
+  receiver_full_fov_mrad: 2.0
+  filter_bandwidth_nm: 10.0
+
+apd:
+  responsivity_a_w: 0.50
+  gain: 50.0
+  ionization_ratio: 0.02
+  primary_dark_current_na: 5.0
+  noise_bandwidth_mhz: 250.0
+
 simulation:
   time_step_ps: 25.0
   window_before_ns: 20.0

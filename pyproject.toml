@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "System-level simulation of a 905 nm pulsed dToF LiDAR channel"
 requires-python = ">=3.12"
 dependencies = [
+  "matplotlib>=3.8",
   "numpy>=1.26",
   "PyYAML>=6.0",
 ]

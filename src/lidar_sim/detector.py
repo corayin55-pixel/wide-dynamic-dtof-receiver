@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
+
 PLANCK_CONSTANT_J_S = 6.626_070_15e-34
 SPEED_OF_LIGHT_M_S = 299_792_458.0
 ELEMENTARY_CHARGE_C = 1.602_176_634e-19
@@ -82,10 +83,15 @@ def background_power_w(
     )
 
 
-def primary_photocurrent_a(optical_power_w: float, responsivity_a_w: float) -> float:
-    if optical_power_w < 0.0:
+def primary_photocurrent_a(optical_power_w, responsivity_a_w: float):
+    optical_power = np.asarray(optical_power_w)
+
+    if np.any(optical_power < 0.0):
         raise ValueError("Optical power cannot be negative")
-    return optical_power_w * responsivity_a_w
+
+    return optical_power * responsivity_a_w
+
+
 
 
 def multiplied_signal_current_a(optical_power_w: float, apd: APD) -> float:

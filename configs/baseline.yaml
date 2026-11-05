@@ -31,6 +31,20 @@ apd:
   primary_dark_current_na: 5.0
   noise_bandwidth_mhz: 250.0
 
+tia:
+  transimpedance_kohm: 20.0
+  bandwidth_mhz: 250.0
+  input_current_noise_pa_sqrt_hz: 3.0
+  output_voltage_noise_nv_sqrt_hz: 5.0
+  output_swing_v: 1.0
+  temperature_k: 300.0
+
+adc:
+  sample_rate_ghz: 1.0
+  resolution_bits: 10
+  input_min_v: -0.05
+  input_max_v: 0.25
+
 simulation:
   time_step_ps: 25.0
   window_before_ns: 20.0

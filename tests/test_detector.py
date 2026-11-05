@@ -10,6 +10,7 @@ from lidar_sim.detector import (
     photons_per_pulse,
     quantum_efficiency,
     shot_noise_rms_a,
+    primary_photocurrent_a,
 )
 
 
@@ -40,3 +41,12 @@ def test_apd_noise_is_positive_and_increases_with_background():
     high_noise = shot_noise_rms_a(1e-7, 1e-8, apd)
     assert low_noise > 0.0
     assert high_noise > low_noise
+
+def test_primary_photocurrent_accepts_waveform_array():
+    optical_power_w = np.array([0.0, 1e-9, 2e-9])
+    current_a = primary_photocurrent_a(optical_power_w, 0.50)
+
+    np.testing.assert_allclose(
+        current_a,
+        np.array([0.0, 0.5e-9, 1.0e-9]),
+    )

@@ -1,0 +1,25 @@
+laser:
+  wavelength_nm: 905.0
+  pulse_energy_nj: 500.0
+  pulse_fwhm_ns: 5.0
+  initial_beam_diameter_mm: 3.0
+  full_angle_divergence_mrad: 1.0
+  transmitter_efficiency: 0.85
+
+target:
+  range_m: 50.0
+  reflectivity: 0.10
+  incidence_angle_deg: 0.0
+  projected_area_m2: 10.0
+
+channel:
+  atmospheric_extinction_per_m: 0.0001
+
+receiver:
+  aperture_diameter_mm: 25.0
+  optical_efficiency: 0.75
+
+simulation:
+  time_step_ps: 25.0
+  window_before_ns: 20.0
+  window_after_ns: 30.0

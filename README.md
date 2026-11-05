@@ -1,19 +1,64 @@
 # 905 nm Pulsed dToF LiDAR System Simulator
+# Wide-Dynamic-Range dToF LiDAR Receiver Simulation and Dual-Gain Design
 
-A reproducible system-level simulation of one outdoor 905 nm pulsed direct
-time-of-flight (dToF) LiDAR channel. The project connects optical-link physics,
-Si APD detection, TIA/ADC design, bottom-level ranging algorithms, Monte Carlo
-performance evaluation, and receiver dynamic-range architecture.
+**面向宽动态测距的 dToF 激光雷达接收机仿真与双增益设计**
 
-> Status: simulation validated by automated consistency tests. Results are model
-> predictions under documented assumptions, not hardware measurements or product
-> specifications.
+A system-level simulation of a 905 nm pulsed dToF LiDAR receiver,
+covering optical propagation, Si APD detection, TIA/ADC design,
+bottom-level ranging algorithms, and receiver architecture comparison.
 
-## Engineering question
+针对单增益接收机难以同时兼顾近距离强回波饱和与远距离弱回波探测的问题，
+本项目建立端到端接收链路模型，并对比单 20 kΩ、单 2 kΩ 和
+20/2 kΩ 双增益接收架构。
 
-How should the optical receiver, detector gain, analog bandwidth, ADC, and
-ranging algorithm be configured to detect low-reflectivity distant targets while
-avoiding saturation on high-reflectivity near targets?
+> All numerical results are simulation predictions under the documented
+> assumptions, not measured hardware specifications.
+
+## Key Results
+
+| Receiver architecture | 10% target | 20% target | Main limitation |
+|---|---:|---:|---|
+| Single 20 kΩ | 30–150 m | 40–220 m | Near-range saturation |
+| Single 2 kΩ | 10–120 m | 10–170 m | Reduced weak-return range |
+| **20/2 kΩ dual gain** | **10–150 m** | **10–220 m** | Added circuit complexity |
+
+## Documentation
+
+- [中文技术报告](docs/technical_report_cn.md)
+- [Model assumptions and parameter sources](docs/assumptions_and_sources.md)
+- [Resume and interview notes](docs/resume_and_interview_cn.md)
+
+Reliable means:
+
+- Correct detection rate ≥ 95%
+- Conditional ranging RMSE ≤ 5 cm
+- Results are evaluated on the current discrete simulation grid
+
+![Architecture comparison](results/figures/13_architecture_reliable_intervals.png)
+
+The dual-gain receiver combines the near-range coverage of the
+2 kΩ channel with the far-range sensitivity of the 20 kΩ channel.
+
+- For a 10% target, the reliable interval expands from **30–150 m**
+  to **10–150 m** compared with the single 20 kΩ receiver.
+- For a 20% target, the reliable interval expands from **40–220 m**
+  to **10–220 m**.
+- At 50 m and 10% reflectivity, matched-filter ranging achieves
+  **1.2 cm RMSE**, compared with **3.3 cm** for fixed-threshold ranging.
+
+## Near-Range Gain Handover
+
+![Near-range gain handover](results/figures/11_near_range_gain_handover.png)
+
+For an 80% target in the current saturation model:
+
+- 0.2–15 m: both gain channels are clipped
+- 20–50 m: the 2 kΩ low-gain channel is selected
+- Approximately 60 m and beyond: the 20 kΩ high-gain channel is selected
+
+These boundaries describe receiver saturation and gain handover,
+not the complete minimum-range behavior of a real LiDAR system.
+Transmit leakage, optical overlap, and overload recovery are not modeled.
 
 ## Signal chain
 
@@ -121,7 +166,7 @@ src/lidar_sim/          Optical, detector, TIA, ADC, and ranging models
 scripts/                Reproducible experiments
 results/data/           Numerical outputs
 results/figures/        Report figures
- tests/                  Physical and numerical consistency tests
+tests/                  Physical and numerical consistency tests
  docs/                   Model derivations, assumptions, and report
 ```
 

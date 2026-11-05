@@ -5,6 +5,15 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 results/data/*
-results/figures/*
+# Ignore generated data by default
+results/data/*
 !results/data/.gitkeep
-!results/figures/.gitkeep
+!results/data/ranging_monte_carlo_summary.csv
+!results/data/range_reflectivity_performance.csv
+!results/data/frontend_selection_summary.csv
+!results/data/dual_gain_performance.csv
+
+# Keep report PNG figures, ignore generated PDFs
+results/figures/*
+!results/figures/*.png
+

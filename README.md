@@ -26,7 +26,6 @@ bottom-level ranging algorithms, and receiver architecture comparison.
 
 - [中文技术报告](docs/technical_report_cn.md)
 - [Model assumptions and parameter sources](docs/assumptions_and_sources.md)
-- [Resume and interview notes](docs/resume_and_interview_cn.md)
 
 Reliable means:
 

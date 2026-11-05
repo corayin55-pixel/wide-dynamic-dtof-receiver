@@ -1,0 +1,13 @@
+Baseline Si APD detector model
+Wavelength:                       905.000 nm
+Received pulse energy:              1.972 fJ
+Mean received photons:             8985.8
+APD quantum efficiency:           68.500%
+Mean primary electrons:            6155.3
+APD excess noise factor:            2.940
+Background optical power:           3.470 nW
+Multiplied peak current:            9.265 uA
+Shot-noise RMS current:             0.336 uA
+Shot-noise-limited peak SNR:       27.551
+
+Model boundary: APD shot noise only; TIA thermal noise and ADC are excluded.

@@ -1,7 +1,17 @@
+> **给成像 / CIS 方向的读者**
+>
+> 本项目建模的是一条光电探测链路：光子 → 光电子 → 跨阻放大 → ADC → 数字估计。
+> 这与 CMOS 图像传感器的像素读出链路是同一套物理，噪声预算、动态范围与增益切换的分析可直接迁移。
+> 本项目为仿真研究，未做硬件实测；参数来源与模型边界见 `docs/assumptions_and_sources.md`。
+
 # Simulation and Dual-Gain Design of dToF LiDAR Receivers for Wide-Dynamic-Range Ranging
 
 **面向宽动态测距的 dToF 激光雷达接收机仿真与双增益设计**
 
+### 5 分钟导读
+1. `docs/technical_report_cn.md` 第 1–2 节：问题定义与链路模型
+2. `results/figures/10_dual_gain_receiver.png`：双增益效果
+3. `docs/assumptions_and_sources.md`：参数来源与模型边界
 
 A system-level simulation of a 905 nm pulsed dToF LiDAR receiver,
 covering optical propagation, Si APD detection, TIA/ADC design,
